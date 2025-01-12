@@ -16,12 +16,13 @@ func SaveTimesToCSVFile(timesMatrix [][]int64, fileName string) {
 
 	for i := 0; i < len(transposedMatrix); i++ {
 		for j := 0; j < len(transposedMatrix[i]); j++ {
-			_, _ = file.WriteString(strconv.FormatInt(transposedMatrix[i][j], 10) + ";")
+			_, _ = file.WriteString(strconv.FormatInt(transposedMatrix[i][j], 10))
+			if j < len(transposedMatrix[i])-1 {
+				_, _ = file.WriteString(";")
+			}
 		}
 		_, _ = file.WriteString("\n")
 	}
-
-	_, _ = file.WriteString("\n")
 
 }
 
