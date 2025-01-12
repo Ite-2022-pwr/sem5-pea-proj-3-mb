@@ -13,8 +13,8 @@ import (
 // Małe epsilon, aby uniknąć dzielenia przez 0, jeśli krawędź ma wagę 0.
 const epsilon = 1e-9
 
-// ACOZeroEdgeSolver - przykład algorytmu Mrówkowego spełniającego podane warunki.
-type ACOZeroEdgeSolver struct {
+// ACOASSolver - przykład algorytmu Mrówkowego spełniającego podane warunki.
+type ACOASSolver struct {
 	graph                           graph.Graph
 	antsCount                       int         // Liczba mrówek
 	pheromonesPerAnt                float64     // Ilość feromonów na jedną mrówkę
@@ -25,6 +25,7 @@ type ACOZeroEdgeSolver struct {
 	startPheromones                 float64     // Początkowa ilość feromonów
 	pheromones                      [][]float64 // Macierz feromonów
 	decisionMatrix                  [][]float64 // Macierz decyzji
+	invDistancesToBetaPow           [][]float64 // Macierz odwrotności wag krawędzi
 	bestSolution                    []int       // Najlepsze dotąd znalezione rozwiązanie
 	bestCost                        int         // Koszt najlepszej trasy
 	timeout                         int64       // Czas wykonania w nanosekundach
@@ -33,8 +34,8 @@ type ACOZeroEdgeSolver struct {
 }
 
 // NewACOZeroEdgeSolver - konstruktor algorytmu
-func NewACOZeroEdgeSolver(antsCount, iterations, maxIterationsWithoutImprovement int, alpha, beta, evap, pherPA, startPher float64, timeout int64) *ACOZeroEdgeSolver {
-	return &ACOZeroEdgeSolver{
+func NewACOZeroEdgeSolver(antsCount, iterations, maxIterationsWithoutImprovement int, alpha, beta, evap, pherPA, startPher float64, timeout int64) *ACOASSolver {
+	return &ACOASSolver{
 		antsCount:                       antsCount, // recommended: graph.GetVertexCount()
 		pheromonesPerAnt:                pherPA,    // default: 5.0 recommended(?): graph.CalculatePathWeight(graph.GetHamiltonianPathGreedy(0))
 		iterations:                      iterations,
@@ -49,32 +50,33 @@ func NewACOZeroEdgeSolver(antsCount, iterations, maxIterationsWithoutImprovement
 }
 
 // SetGraph przypina solverowi dany graf.
-func (s *ACOZeroEdgeSolver) SetGraph(g graph.Graph) {
+func (s *ACOASSolver) SetGraph(g graph.Graph) {
 	s.graph = g
 	if s.startPheromones == 0 {
 		s.startPheromones = 1.0
 	}
 	s.initializePheromones()
+	s.initializeInvDistancesToBetaPow()
 	s.initializeDecisionMatrix()
 }
 
 // GetGraph zwraca aktualnie ustawiony graf.
-func (s *ACOZeroEdgeSolver) GetGraph() graph.Graph {
+func (s *ACOASSolver) GetGraph() graph.Graph {
 	return s.graph
 }
 
 // GetPheromones zwraca macierz feromonów.
-func (s *ACOZeroEdgeSolver) GetPheromones() [][]float64 {
+func (s *ACOASSolver) GetPheromones() [][]float64 {
 	return s.pheromones
 }
 
 // GetDecisionMatrix zwraca macierz decyzji.
-func (s *ACOZeroEdgeSolver) GetDecisionMatrix() [][]float64 {
+func (s *ACOASSolver) GetDecisionMatrix() [][]float64 {
 	return s.decisionMatrix
 }
 
 // PheromonesToString zwraca macierz feromonów w postaci stringa.
-func (s *ACOZeroEdgeSolver) PheromonesToString() string {
+func (s *ACOASSolver) PheromonesToString() string {
 	result := ""
 	for i := 0; i < len(s.pheromones); i++ {
 		for j := 0; j < len(s.pheromones[i]); j++ {
@@ -86,7 +88,7 @@ func (s *ACOZeroEdgeSolver) PheromonesToString() string {
 }
 
 // DecisionMatrixToString zwraca macierz decyzji w postaci stringa.
-func (s *ACOZeroEdgeSolver) DecisionMatrixToString() string {
+func (s *ACOASSolver) DecisionMatrixToString() string {
 	result := ""
 	for i := 0; i < len(s.decisionMatrix); i++ {
 		for j := 0; j < len(s.decisionMatrix[i]); j++ {
@@ -99,7 +101,7 @@ func (s *ACOZeroEdgeSolver) DecisionMatrixToString() string {
 
 // Solve uruchamia algorytm i zwraca najlepszą znalezioną ścieżkę Hamiltona wraz z kosztem.
 // Jeżeli żadna mrówka nie zbuduje pełnej ścieżki, solver zwróci bestSolution == nil i bestCost == math.MaxInt.
-func (s *ACOZeroEdgeSolver) Solve() ([]int, int) {
+func (s *ACOASSolver) Solve() ([]int, int) {
 	vertexCount := s.graph.GetVertexCount()
 	if vertexCount == 0 {
 		return nil, -1
@@ -192,19 +194,20 @@ func (s *ACOZeroEdgeSolver) Solve() ([]int, int) {
 }
 
 // initializePheromones inicjalizuje macierz feromonów.
-func (s *ACOZeroEdgeSolver) initializePheromones() {
+func (s *ACOASSolver) initializePheromones() {
 	vertexCount := s.graph.GetVertexCount()
 	s.pheromones = make([][]float64, vertexCount)
 	for i := 0; i < vertexCount; i++ {
 		s.pheromones[i] = make([]float64, vertexCount)
 		for j := 0; j < vertexCount; j++ {
-			s.pheromones[i][j] = s.startPheromones
+			//s.pheromones[i][j] = s.startPheromones
+			s.pheromones[i][j] = math.Pow(s.startPheromones, s.alpha)
 		}
 	}
 }
 
 // updatePheromones aktualizuje macierz feromonów po zakończeniu iteracji.
-func (s *ACOZeroEdgeSolver) updatePheromones(antPaths [][]int, antCosts []int) {
+func (s *ACOASSolver) updatePheromones(antPaths [][]int, antCosts []int) {
 	vertexCount := s.graph.GetVertexCount()
 	for i := 0; i < vertexCount; i++ {
 		for j := 0; j < vertexCount; j++ {
@@ -212,15 +215,44 @@ func (s *ACOZeroEdgeSolver) updatePheromones(antPaths [][]int, antCosts []int) {
 		}
 	}
 	for i := 0; i < len(antPaths); i++ {
-		pheromonePerEdge := s.pheromonesPerAnt / float64(antCosts[i])
+		//pheromonePerEdge := s.pheromonesPerAnt / float64(antCosts[i])
 		for j := 0; j < len(antPaths[i])-1; j++ {
-			s.pheromones[antPaths[i][j]][antPaths[i][j+1]] += pheromonePerEdge
+			//s.pheromones[antPaths[i][j]][antPaths[i][j+1]] += pheromonePerEdge
+			s.pheromones[antPaths[i][j]][antPaths[i][j+1]] += 1.0 / float64(antCosts[i])
+		}
+	}
+	for i := 0; i < vertexCount; i++ {
+		for j := 0; j < vertexCount; j++ {
+			s.pheromones[i][j] = math.Pow(s.pheromones[i][j], s.alpha)
+		}
+	}
+}
+
+// initializeInvDistances inicjalizuje macierz odwrotności wag krawędzi.
+func (s *ACOASSolver) initializeInvDistancesToBetaPow() {
+	vertexCount := s.graph.GetVertexCount()
+	s.invDistancesToBetaPow = make([][]float64, vertexCount)
+	for i := 0; i < vertexCount; i++ {
+		s.invDistancesToBetaPow[i] = make([]float64, vertexCount)
+	}
+	for i := 0; i < vertexCount; i++ {
+		for j := 0; j < vertexCount; j++ {
+			if i == j {
+				s.invDistancesToBetaPow[i][j] = 0
+			} else {
+				if s.graph.GetEdge(i, j).Weight == 0 {
+					s.invDistancesToBetaPow[i][j] = 1.0 / epsilon
+				} else {
+					s.invDistancesToBetaPow[i][j] = 1.0 / float64(s.graph.GetEdge(i, j).Weight)
+				}
+				s.invDistancesToBetaPow[i][j] = math.Pow(s.invDistancesToBetaPow[i][j], s.beta)
+			}
 		}
 	}
 }
 
 // initializeDecisionMatrix inicjalizuje macierz decyzji.
-func (s *ACOZeroEdgeSolver) initializeDecisionMatrix() {
+func (s *ACOASSolver) initializeDecisionMatrix() {
 	vertexCount := s.graph.GetVertexCount()
 	s.decisionMatrix = make([][]float64, vertexCount)
 	for i := 0; i < vertexCount; i++ {
@@ -230,7 +262,7 @@ func (s *ACOZeroEdgeSolver) initializeDecisionMatrix() {
 }
 
 // updateDecisionMatrix aktualizuje macierz decyzji.
-func (s *ACOZeroEdgeSolver) updateDecisionMatrix() {
+func (s *ACOASSolver) updateDecisionMatrix() {
 	vertexCount := s.graph.GetVertexCount()
 	for i := 0; i < vertexCount; i++ {
 		edgeAttractivenessList := make([]float64, vertexCount)
@@ -240,13 +272,8 @@ func (s *ACOZeroEdgeSolver) updateDecisionMatrix() {
 				s.decisionMatrix[i][j] = -1.0
 				continue
 			}
-			edgeLocalHeuristic := 1.0
-			if s.graph.GetEdge(i, j).Weight == 0 {
-				edgeLocalHeuristic /= epsilon
-			} else {
-				edgeLocalHeuristic /= float64(s.graph.GetEdge(i, j).Weight)
-			}
-			edgeAttractivenessList[j] = math.Pow(s.pheromones[i][j], s.alpha) * math.Pow(edgeLocalHeuristic, s.beta)
+			//edgeAttractivenessList[j] = math.Pow(s.pheromones[i][j], s.alpha) * s.invDistancesToBetaPow[i][j]
+			edgeAttractivenessList[j] = s.pheromones[i][j] * s.invDistancesToBetaPow[i][j]
 			edgeAttractivenessSum += edgeAttractivenessList[j]
 		}
 		for j := 0; j < vertexCount; j++ {
@@ -258,7 +285,7 @@ func (s *ACOZeroEdgeSolver) updateDecisionMatrix() {
 }
 
 // calculateAvailableProbabilitiesSum oblicza sumę dostępnych prawdopodobieństw.
-func (s *ACOZeroEdgeSolver) calculateAvailableProbabilitiesSum(antVisited []bool, currentVertex int) float64 {
+func (s *ACOASSolver) calculateAvailableProbabilitiesSum(antVisited []bool, currentVertex int) float64 {
 	vertexCount := s.graph.GetVertexCount()
 	availableProbabilitiesSum := 0.0
 	for i := 0; i < vertexCount; i++ {
