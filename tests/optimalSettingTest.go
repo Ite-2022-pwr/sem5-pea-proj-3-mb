@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
-func RunOptimaACO() {
+func RunOptimalACO() {
 	tinyGraph, smallGraph, mediumGraph, largeGraph := LoadTestGraphs()
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	runSingleGraphACO(tinyGraph, timeoutInNs, "aco_optimal_tiny_")
 	runSingleGraphACO(smallGraph, timeoutInNs, "aco_optimal_small_")
 	runSingleGraphACO(mediumGraph, timeoutInNs, "aco_optimal_medium_")
@@ -24,7 +24,7 @@ func runSingleGraphACO(g graph.Graph, timeoutInNs int64, fileOutName string) {
 		results[i] = make([]int64, 10)
 	}
 
-	acoSolver := aco.NewACOZeroEdgeSolver(g.GetVertexCount(), 100, math.MaxInt, 1.0, 5.0, 0.5, 1.0, float64(g.GetVertexCount())/float64(g.CalculatePathWeight(g.GetHamiltonianPathGreedy(0))), timeoutInNs)
+	acoSolver := aco.NewACOZeroEdgeSolver(100, 100, math.MaxInt, 2.0, 2.0, 0.5, 30.0, float64(g.GetVertexCount())/float64(g.CalculatePathWeight(g.GetHamiltonianPathGreedy(0))), timeoutInNs)
 	acoSolver.SetGraph(g)
 	for i := 0; i < 10; i++ {
 		start := time.Now()

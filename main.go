@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"projekt2/menu"
+	"projekt2/tests"
 	"projekt2/tests/amountTests"
 	"projekt2/tests/comparisonTests"
 	"projekt2/tests/tuningTests"
@@ -21,6 +22,7 @@ func main() {
 		amountTests.RunAmountTests()
 		comparisonTests.RunComparisonTests()
 		comparisonTests.RunTimeComparisonTests()
+		tests.RunOptimalACO()
 	}
 
 }
