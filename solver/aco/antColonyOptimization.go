@@ -148,7 +148,7 @@ func (s *ACOASSolver) Solve() ([]int, int) {
 				currSum := 0.0
 				randomValue := rand.Float64()
 				for l := 0; l < vertexCount; l++ {
-					if !antVisited[l] && nextVertex != s.graph.GetNoEdgeValue() {
+					if !antVisited[l] && s.graph.GetEdge(currentVertex, l).Weight != s.graph.GetNoEdgeValue() {
 						currSum += edgeDecisionValues[l] / availableProbabilitiesSum
 						if randomValue >= sumBefore && randomValue < currSum {
 							nextVertex = l
@@ -201,8 +201,7 @@ func (s *ACOASSolver) initializePheromones() {
 	for i := 0; i < vertexCount; i++ {
 		s.pheromones[i] = make([]float64, vertexCount)
 		for j := 0; j < vertexCount; j++ {
-			//s.pheromones[i][j] = s.startPheromones
-			s.pheromones[i][j] = math.Pow(s.startPheromones, s.alpha)
+			s.pheromones[i][j] = s.startPheromones
 		}
 	}
 }
@@ -219,18 +218,11 @@ func (s *ACOASSolver) evaporationPheromones() {
 
 // updatePheromones aktualizuje macierz feromonów po zakończeniu iteracji.
 func (s *ACOASSolver) updatePheromones(antPaths [][]int, antCosts []int) {
-	vertexCount := s.graph.GetVertexCount()
 	s.evaporationPheromones()
 	for i := 0; i < len(antPaths); i++ {
 		//pheromonePerEdge := s.pheromonesPerAnt / float64(antCosts[i])
 		for j := 0; j < len(antPaths[i])-1; j++ {
-			//s.pheromones[antPaths[i][j]][antPaths[i][j+1]] += pheromonePerEdge
-			s.pheromones[antPaths[i][j]][antPaths[i][j+1]] += 1.0 / float64(antCosts[i])
-		}
-	}
-	for i := 0; i < vertexCount; i++ {
-		for j := 0; j < vertexCount; j++ {
-			s.pheromones[i][j] = math.Pow(s.pheromones[i][j], s.alpha)
+			s.pheromones[antPaths[i][j]][antPaths[i][j+1]] += s.pheromonesPerAnt / float64(antCosts[i])
 		}
 	}
 }
@@ -244,11 +236,11 @@ func (s *ACOASSolver) initializeInvDistancesToBetaPow() {
 	}
 	for i := 0; i < vertexCount; i++ {
 		for j := 0; j < vertexCount; j++ {
-			if i == j {
+			if i == j || s.graph.GetEdge(i, j).Weight == s.graph.GetNoEdgeValue() {
 				s.invDistancesToBetaPow[i][j] = 0
 			} else {
 				if s.graph.GetEdge(i, j).Weight == 0 {
-					s.invDistancesToBetaPow[i][j] = 1.0
+					s.invDistancesToBetaPow[i][j] = 1.0 / epsilon
 				} else {
 					s.invDistancesToBetaPow[i][j] = 1.0 / float64(s.graph.GetEdge(i, j).Weight)
 				}
@@ -275,16 +267,16 @@ func (s *ACOASSolver) updateDecisionMatrix() {
 		edgeAttractivenessList := make([]float64, vertexCount)
 		edgeAttractivenessSum := 0.0
 		for j := 0; j < vertexCount; j++ {
-			if i == j {
+			if i == j || s.graph.GetEdge(i, j).Weight == s.graph.GetNoEdgeValue() {
 				s.decisionMatrix[i][j] = -1.0
 				continue
 			}
 			//edgeAttractivenessList[j] = math.Pow(s.pheromones[i][j], s.alpha) * s.invDistancesToBetaPow[i][j]
-			edgeAttractivenessList[j] = s.pheromones[i][j] * s.invDistancesToBetaPow[i][j]
+			edgeAttractivenessList[j] = math.Pow(s.pheromones[i][j], s.alpha) * s.invDistancesToBetaPow[i][j]
 			edgeAttractivenessSum += edgeAttractivenessList[j]
 		}
 		for j := 0; j < vertexCount; j++ {
-			if i != j {
+			if i != j && s.graph.GetEdge(i, j).Weight != s.graph.GetNoEdgeValue() {
 				s.decisionMatrix[i][j] = edgeAttractivenessList[j] / edgeAttractivenessSum
 			}
 		}

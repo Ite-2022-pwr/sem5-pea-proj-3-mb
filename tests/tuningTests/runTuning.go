@@ -1,16 +1,16 @@
 package tuningTests
 
 import (
-	"projekt2/tests/tuningTests/saTuning"
+	"projekt2/tests/tuningTests/acoTuning"
 )
 
 func RunTuning() {
-	//saTuning.RunIterationsTuningSA()
-	//saTuning.RunAlphaTuningSA()
-	//saTuning.RunMinTempTuningSA()
-	saTuning.RunInitialTempTuningSA()
+	acoTuning.RunAlphaTests()
+	acoTuning.RunBetaTests()
+	acoTuning.RunEvaporationRateTests()
+	acoTuning.RunPheromonesPerAntTests()
+	acoTuning.RunStartPheromonesTests()
+	acoTuning.RunAntCountTests()
+	acoTuning.RunIterTests()
 
-	//tsTuning.RunNeighbourTuningTS()
-	//tsTuning.RunTenureTuningTS()
-	//tsTuning.RunIterationsTuningTS()
 }
