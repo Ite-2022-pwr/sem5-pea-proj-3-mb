@@ -24,7 +24,7 @@ func RunBetaTests() {
 func runSingleGraphBetaTuning(g graph.Graph, betaValues []float64, timeoutInNs int64, fileOutName string) {
 	results := make([][][]int64, len(betaValues))
 	iterations := 100
-	antsCount := g.GetVertexCount()
+	antsCount := 30
 	alpha := 1.0
 	rho := 0.5
 	startPheromone := float64(g.GetVertexCount()) / float64(g.CalculatePathWeight(g.GetHamiltonianPathGreedy(0)))

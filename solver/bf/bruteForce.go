@@ -46,6 +46,8 @@ func (b *BFATSPSolver) Solve() ([]int, int) {
 	// Rozpoczynamy rekurencyjne przeszukiwanie wszystkich możliwych ścieżek.
 	recursiveBruteForce(b.graph, b.startVertex, visited, 0, &minPathCost, currentPath, bestPath)
 
+	log.Println("Zakończenie Brute-Force dla wierzchołka początkowego:", b.startVertex, "z liczbą wierzchołków:", vertexCount)
+
 	return bestPath, minPathCost
 }
 

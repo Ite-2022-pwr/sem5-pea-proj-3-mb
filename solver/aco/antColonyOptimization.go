@@ -115,7 +115,6 @@ func (s *ACOASSolver) Solve() ([]int, int) {
 	for i := 0; i < s.iterations; i++ {
 		// Sprawdzenie limitu czasu
 		if s.timeout != -1 {
-			log.Println(s.timeout)
 			elapsed := time.Since(s.startTime).Nanoseconds()
 			if elapsed >= s.timeout {
 				log.Println("Przekroczono limit czasu. Kończenie algorytmu.")
@@ -128,8 +127,6 @@ func (s *ACOASSolver) Solve() ([]int, int) {
 		}
 
 		iterationsWithoutImprovement++
-
-		log.Println("Iteracja", i)
 
 		antPaths := make([][]int, s.antsCount)
 		antCosts := make([]int, s.antsCount)

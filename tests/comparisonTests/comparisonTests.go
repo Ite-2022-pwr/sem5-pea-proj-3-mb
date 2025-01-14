@@ -23,7 +23,7 @@ func RunComparisonTests() {
 }
 
 func runTinyComparisonTests(g graph.Graph, filename string) {
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	results := make([][]int64, 5) // aco, sa, ts, dp, bnb
 	for i := 0; i < 5; i++ {
 		results[i] = make([]int64, 10)

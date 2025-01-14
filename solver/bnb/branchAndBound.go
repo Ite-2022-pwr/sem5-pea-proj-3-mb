@@ -2,6 +2,7 @@ package bnb
 
 import (
 	"container/heap"
+	"log"
 	"math"
 	"projekt2/graph"
 )
@@ -32,6 +33,8 @@ func (b *BNBATSPSolver) SetStartVertex(startVertex int) {
 func (b *BNBATSPSolver) Solve() ([]int, int) {
 	vertexCount := b.GetGraph().GetVertexCount()
 
+	log.Println("Rozpoczęcie Branch and Bound dla wierzchołka początkowego:", b.startVertex, "z liczbą wierzchołków:", vertexCount)
+
 	// Obliczamy początkowe dolne ograniczenie oraz minimalne koszty krawędzi wychodzących.
 	lowerBound, minEdgeLookup := calculateStartLowerBound(b.graph)
 	minPathCost := math.MaxInt
@@ -42,6 +45,8 @@ func (b *BNBATSPSolver) Solve() ([]int, int) {
 
 	// Rozpoczynamy rekurencyjne przeszukiwanie drzewa rozwiązań.
 	recursiveBNB(b.graph, startNode, visited, &minPathCost, currentPath, bestPath, minEdgeLookup)
+
+	log.Println("Zakończenie Branch and Bound dla wierzchołka początkowego:", b.startVertex, "z liczbą wierzchołków:", vertexCount)
 
 	return bestPath, minPathCost
 }

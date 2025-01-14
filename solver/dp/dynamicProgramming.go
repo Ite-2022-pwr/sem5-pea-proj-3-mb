@@ -133,5 +133,7 @@ func (d *DPATSPSolver) Solve() ([]int, int) {
 	// Dodajemy wierzchołek startowy na końcu trasy, aby utworzyć cykl
 	bestPath = append(bestPath, d.startVertex)
 
+	log.Println("Zakończenie programowania dynamicznego dla wierzchołka początkowego:", d.startVertex, "z liczbą wierzchołków:", vertexCount)
+
 	return bestPath, minCost
 }
