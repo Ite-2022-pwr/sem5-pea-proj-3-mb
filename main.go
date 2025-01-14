@@ -20,6 +20,7 @@ func main() {
 		tuningTests.RunTuning()
 		amountTests.RunAmountTests()
 		comparisonTests.RunComparisonTests()
+		comparisonTests.RunTimeComparisonTests()
 	}
 
 }

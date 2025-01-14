@@ -13,7 +13,7 @@ import (
 
 func RunStartPheromonesTests() {
 	tinyG, smallG, mediumG, largeG := tests.LoadTestGraphs()
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	startPheromones := []float64{1, 10}
 	tinyGPheromones := float64(tinyG.GetVertexCount()) / float64(tinyG.CalculatePathWeight(tinyG.GetHamiltonianPathGreedy(0)))
 	smallGPheromones := float64(smallG.GetVertexCount()) / float64(smallG.CalculatePathWeight(smallG.GetHamiltonianPathGreedy(0)))
@@ -32,7 +32,7 @@ func RunStartPheromonesTests() {
 func runSingleGraphStartPheromonesTuning(g graph.Graph, startPheromones []float64, timeoutInNs int64, fileOutName string) {
 	results := make([][][]int64, len(startPheromones))
 	iterations := 100
-	antsCount := g.GetVertexCount()
+	antsCount := 30
 	alpha := 1.0
 	beta := 5.0
 	rho := 0.5

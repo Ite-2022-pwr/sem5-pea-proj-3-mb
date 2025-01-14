@@ -13,7 +13,7 @@ import (
 
 func RunBetaTests() {
 	tinyG, smallG, mediumG, largeG := tests.LoadTestGraphs()
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	betaValues := []float64{2.0, 5.0, 8.0}
 	runSingleGraphBetaTuning(tinyG, betaValues, timeoutInNs, "aco_beta_tiny_")
 	runSingleGraphBetaTuning(smallG, betaValues, timeoutInNs, "aco_beta_small_")

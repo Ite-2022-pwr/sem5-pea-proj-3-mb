@@ -14,7 +14,7 @@ import (
 func RunIterTests() {
 	tinyG, smallG, mediumG, largeG := tests.LoadTestGraphs()
 	iterationsToTest := []int{10, 50, 100}
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	runSingleGraphIterTuning(tinyG, iterationsToTest, timeoutInNs, "aco_iter_tiny_")
 	runSingleGraphIterTuning(smallG, iterationsToTest, timeoutInNs, "aco_iter_small_")
 	runSingleGraphIterTuning(mediumG, iterationsToTest, timeoutInNs, "aco_iter_medium_")
@@ -22,6 +22,7 @@ func RunIterTests() {
 }
 
 func runSingleGraphIterTuning(g graph.Graph, iterations []int, timeoutInNs int64, fileOutName string) {
+	antsCount := 30
 	results := make([][][]int64, len(iterations))
 	alpha := 1.0
 	beta := 1.0
@@ -38,7 +39,7 @@ func runSingleGraphIterTuning(g graph.Graph, iterations []int, timeoutInNs int64
 	}
 
 	for i, iteration := range iterations {
-		acoSolver := aco.NewACOZeroEdgeSolver(g.GetVertexCount(), iteration, math.MaxInt, alpha, beta, rho, pheromonesPerAnt, startPheromone, timeoutInNs)
+		acoSolver := aco.NewACOZeroEdgeSolver(antsCount, iteration, math.MaxInt, alpha, beta, rho, pheromonesPerAnt, startPheromone, timeoutInNs)
 		acoSolver.SetGraph(g)
 		for j := 0; j < 10; j++ {
 			startTime := time.Now()

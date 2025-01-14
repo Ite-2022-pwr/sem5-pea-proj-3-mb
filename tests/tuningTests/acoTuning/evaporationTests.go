@@ -14,7 +14,7 @@ import (
 func RunEvaporationRateTests() {
 	tinyG, smallG, mediumG, largeG := tests.LoadTestGraphs()
 	evaporationRates := []float64{0.1, 0.3, 0.5}
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	runSingleGraphEvaporationRateTuning(tinyG, evaporationRates, timeoutInNs, "aco_evaporation_tiny_")
 	runSingleGraphEvaporationRateTuning(smallG, evaporationRates, timeoutInNs, "aco_evaporation_small_")
 	runSingleGraphEvaporationRateTuning(mediumG, evaporationRates, timeoutInNs, "aco_evaporation_medium_")
@@ -24,7 +24,7 @@ func RunEvaporationRateTests() {
 func runSingleGraphEvaporationRateTuning(g graph.Graph, evaporationRates []float64, timeoutInNs int64, fileOutName string) {
 	results := make([][][]int64, len(evaporationRates))
 	iterations := 100
-	antsCount := g.GetVertexCount()
+	antsCount := 30
 	alpha := 1.0
 	beta := 5.0
 	startPheromone := float64(g.GetVertexCount()) / float64(g.CalculatePathWeight(g.GetHamiltonianPathGreedy(0)))

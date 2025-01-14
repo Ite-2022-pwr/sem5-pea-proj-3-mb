@@ -14,18 +14,18 @@ import (
 func RunPheromonesPerAntTests() {
 	tinyG, smallG, mediumG, bigG := tests.LoadTestGraphs()
 	pheromonesPerAnts := []float64{1.0, 30.0, 50.0, 100.0}
-	timeOutNs := utils.MinutesToNanoSeconds(2)
-	runSingleGraphPheromonesPerAntTuning(tinyG, pheromonesPerAnts, timeOutNs, "aco_pheromones_per_ant_tiny_")
-	runSingleGraphPheromonesPerAntTuning(smallG, pheromonesPerAnts, timeOutNs, "aco_pheromones_per_ant_small_")
-	runSingleGraphPheromonesPerAntTuning(mediumG, pheromonesPerAnts, timeOutNs, "aco_pheromones_per_ant_medium_")
-	runSingleGraphPheromonesPerAntTuning(bigG, pheromonesPerAnts, timeOutNs, "aco_pheromones_per_ant_big_")
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
+	runSingleGraphPheromonesPerAntTuning(tinyG, pheromonesPerAnts, timeoutInNs, "aco_pheromones_per_ant_tiny_")
+	runSingleGraphPheromonesPerAntTuning(smallG, pheromonesPerAnts, timeoutInNs, "aco_pheromones_per_ant_small_")
+	runSingleGraphPheromonesPerAntTuning(mediumG, pheromonesPerAnts, timeoutInNs, "aco_pheromones_per_ant_medium_")
+	runSingleGraphPheromonesPerAntTuning(bigG, pheromonesPerAnts, timeoutInNs, "aco_pheromones_per_ant_big_")
 
 }
 
 func runSingleGraphPheromonesPerAntTuning(g graph.Graph, pheromonesPerAnts []float64, timeOutNs int64, fileOutName string) {
 	results := make([][][]int64, len(pheromonesPerAnts))
 	iterations := 100
-	antsCount := g.GetVertexCount()
+	antsCount := 30
 	alpha := 1.0
 	beta := 5.0
 	rho := 0.5

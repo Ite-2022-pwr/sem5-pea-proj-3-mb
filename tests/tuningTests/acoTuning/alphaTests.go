@@ -13,7 +13,7 @@ import (
 
 func RunAlphaTests() {
 	tinyG, smallG, mediumG, largeG := tests.LoadTestGraphs()
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	alphaValues := []float64{1.0, 2.0, 3.0, 5.0}
 	runSingleGraphAlphaTuning(tinyG, alphaValues, timeoutInNs, "aco_alpha_tiny_")
 	runSingleGraphAlphaTuning(smallG, alphaValues, timeoutInNs, "aco_alpha_small_")
@@ -24,7 +24,7 @@ func RunAlphaTests() {
 func runSingleGraphAlphaTuning(g graph.Graph, alphaValues []float64, timeoutInNs int64, fileOutName string) {
 	results := make([][][]int64, len(alphaValues))
 	iterations := 100
-	antsCount := g.GetVertexCount()
+	antsCount := 30
 	beta := 5.0
 	rho := 0.5
 	startPheromone := float64(g.GetVertexCount()) / float64(g.CalculatePathWeight(g.GetHamiltonianPathGreedy(0)))

@@ -6,7 +6,6 @@ import (
 	"math"
 	"math/rand/v2"
 	"projekt2/graph"
-	"projekt2/utils"
 	"time"
 )
 
@@ -35,6 +34,7 @@ type ACOASSolver struct {
 
 // NewACOZeroEdgeSolver - konstruktor algorytmu
 func NewACOZeroEdgeSolver(antsCount, iterations, maxIterationsWithoutImprovement int, alpha, beta, evap, pherPA, startPher float64, timeout int64) *ACOASSolver {
+	log.Println(timeout)
 	return &ACOASSolver{
 		antsCount:                       antsCount, // recommended: graph.GetVertexCount()
 		pheromonesPerAnt:                pherPA,    // default: 5.0 recommended(?): graph.CalculatePathWeight(graph.GetHamiltonianPathGreedy(0))
@@ -45,7 +45,7 @@ func NewACOZeroEdgeSolver(antsCount, iterations, maxIterationsWithoutImprovement
 		startPheromones:                 startPher,   // default: 1.0 recommended: antsCount / graph.CalculatePathWeight(graph.GetHamiltonianPathGreedy(0))
 		bestCost:                        math.MaxInt, // Na start przyjmujemy bardzo dużą wartość
 		maxIterationsWithoutImprovement: maxIterationsWithoutImprovement,
-		timeout:                         utils.SecondsToNanoSeconds(timeout),
+		timeout:                         timeout,
 	}
 }
 
@@ -115,6 +115,7 @@ func (s *ACOASSolver) Solve() ([]int, int) {
 	for i := 0; i < s.iterations; i++ {
 		// Sprawdzenie limitu czasu
 		if s.timeout != -1 {
+			log.Println(s.timeout)
 			elapsed := time.Since(s.startTime).Nanoseconds()
 			if elapsed >= s.timeout {
 				log.Println("Przekroczono limit czasu. Kończenie algorytmu.")

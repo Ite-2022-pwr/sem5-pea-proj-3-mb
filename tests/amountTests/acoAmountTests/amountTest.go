@@ -11,8 +11,8 @@ import (
 
 func RunACOAmountTests() {
 	noEdgeValue := -1
-	timeoutInNs := utils.SecondsToNanoSeconds(120)
-	acoSolver := aco.NewACOZeroEdgeSolver(100, 1000, math.MaxInt, 1.0, 5.0, 0.5, 1.0, 1.0, -1)
+	timeoutInNs := utils.SecondsToNanoSeconds(60)
+	acoSolver := aco.NewACOZeroEdgeSolver(30, 1000, math.MaxInt, 1.0, 5.0, 0.5, 1.0, 1.0, timeoutInNs)
 	results := make([][]int64, 0)
 	vertexCount := 50
 	for {

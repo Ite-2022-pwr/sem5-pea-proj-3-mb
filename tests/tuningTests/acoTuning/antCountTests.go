@@ -17,7 +17,7 @@ func RunAntCountTests() {
 	antCountsS := []int{10, 50, 100, 56}
 	antCountsM := []int{10, 50, 100, 171}
 	antCountsL := []int{10, 50, 100, 358}
-	timeoutInNs := utils.MinutesToNanoSeconds(2)
+	timeoutInNs := utils.MinutesToNanoSeconds(1)
 	runSingleGraphIterTuning(tinyG, antCountsT, timeoutInNs, "aco_ant_count_tiny_")
 	runSingleGraphIterTuning(smallG, antCountsS, timeoutInNs, "aco_ant_count_small_")
 	runSingleGraphIterTuning(mediumG, antCountsM, timeoutInNs, "aco_ant_count_medium_")
