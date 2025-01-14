@@ -174,7 +174,8 @@ func (s *ACOASSolver) Solve() ([]int, int) {
 			}
 			antPath = append(antPath, antStartVertex)
 			antCost = s.graph.CalculatePathWeight(antPath)
-			antPaths[j] = antPath
+			antPaths[j] = make([]int, len(antPath))
+			copy(antPaths[j], antPath)
 			antCosts[j] = antCost
 			if antCost < s.bestCost {
 				log.Println("Znaleziono lepsze rozwiązanie!")
@@ -206,14 +207,20 @@ func (s *ACOASSolver) initializePheromones() {
 	}
 }
 
-// updatePheromones aktualizuje macierz feromonów po zakończeniu iteracji.
-func (s *ACOASSolver) updatePheromones(antPaths [][]int, antCosts []int) {
+// evaporationPheromones paruje feromony.
+func (s *ACOASSolver) evaporationPheromones() {
 	vertexCount := s.graph.GetVertexCount()
 	for i := 0; i < vertexCount; i++ {
 		for j := 0; j < vertexCount; j++ {
 			s.pheromones[i][j] *= 1 - s.evaporationRate
 		}
 	}
+}
+
+// updatePheromones aktualizuje macierz feromonów po zakończeniu iteracji.
+func (s *ACOASSolver) updatePheromones(antPaths [][]int, antCosts []int) {
+	vertexCount := s.graph.GetVertexCount()
+	s.evaporationPheromones()
 	for i := 0; i < len(antPaths); i++ {
 		//pheromonePerEdge := s.pheromonesPerAnt / float64(antCosts[i])
 		for j := 0; j < len(antPaths[i])-1; j++ {
@@ -241,7 +248,7 @@ func (s *ACOASSolver) initializeInvDistancesToBetaPow() {
 				s.invDistancesToBetaPow[i][j] = 0
 			} else {
 				if s.graph.GetEdge(i, j).Weight == 0 {
-					s.invDistancesToBetaPow[i][j] = 1.0 / epsilon
+					s.invDistancesToBetaPow[i][j] = 1.0
 				} else {
 					s.invDistancesToBetaPow[i][j] = 1.0 / float64(s.graph.GetEdge(i, j).Weight)
 				}

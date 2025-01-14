@@ -23,8 +23,8 @@ func main() {
 	//	tests.RunOptimalSA()
 	//	tests.RunOptimalTS()
 	//}
-	g := graph.NewAdjMatrixGraph(443, 0)
-	err := graph.LoadGraphFromFile("rbg443.atsp", g, true)
+	g := graph.NewAdjMatrixGraph(358, 0)
+	err := graph.LoadGraphFromFile("rbg358.atsp", g, true)
 	if err != nil {
 		return
 	}
@@ -40,7 +40,7 @@ func main() {
 	startPheromone := float64(bestGreedyWeight) / float64(ants)
 	pheromonesPerAnt := float64(bestGreedyWeight)
 	fmt.Println(pheromonesPerAnt)
-	acoSolv := aco.NewACOZeroEdgeSolver(100, 100000, 10000, 1.0, 5.0, 0.6, pheromonesPerAnt, startPheromone, 60)
+	acoSolv := aco.NewACOZeroEdgeSolver(10, 1000, 10000, 1.0, 5.0, 0.5, pheromonesPerAnt, startPheromone, 30)
 	acoSolv.SetGraph(g)
 	startTime := time.Now()
 	log.Println("Start time: ", startTime)
@@ -48,4 +48,5 @@ func main() {
 	elapsedTime := time.Since(startTime)
 	log.Println("Elapsed time: ", elapsedTime)
 	log.Println(path, "\n", cost)
+
 }

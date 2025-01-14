@@ -3,6 +3,7 @@ package menu
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"projekt2/utils"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"projekt2/graph"
+	"projekt2/solver/aco" // <<--- import naszego solvera
 	"projekt2/solver/bf"
 	"projekt2/solver/bnb"
 	"projekt2/solver/dp"
@@ -26,8 +28,12 @@ type Menu struct {
 	grATSPSolver  gr.GRATSPSolver
 	saATSPSolver  sa.SaATSPSolver
 	tsATSPSolver  ts.TsATSPSolver
-	graph         graph.Graph
-	startVertex   int
+
+	// --- ACOAS: nowy solver ---
+	acoAsSolver aco.ACOASSolver
+
+	graph       graph.Graph
+	startVertex int
 }
 
 // NewMenu tworzy nową instancję menu bez grafu
@@ -40,6 +46,9 @@ func NewMenu() *Menu {
 		grATSPSolver:  gr.GRATSPSolver{},
 		saATSPSolver:  sa.SaATSPSolver{},
 		tsATSPSolver:  ts.TsATSPSolver{},
+
+		// ACOAS
+		acoAsSolver: aco.ACOASSolver{},
 	}
 }
 
@@ -59,6 +68,9 @@ func (m *Menu) SetGraph(g graph.Graph) {
 	m.grATSPSolver.SetGraph(g)
 	m.saATSPSolver.SetGraph(g)
 	m.tsATSPSolver.SetGraph(g)
+
+	// ACOAS - jeżeli chcemy, by automatycznie też przypisać:
+	m.acoAsSolver.SetGraph(g)
 }
 
 // Graph zwraca aktualny graf
@@ -75,6 +87,9 @@ func (m *Menu) SetStartVertex(startVertex int) {
 	m.grATSPSolver.SetStartVertex(startVertex)
 	m.saATSPSolver.SetStartVertex(startVertex)
 	m.tsATSPSolver.SetStartVertex(startVertex)
+
+	// ACOAS aktualnie nie korzysta z SetStartVertex,
+	// ale jeśli by korzystał, można by tu dodać analogiczną linijkę
 }
 
 // LoadGraphFromFile wczytuje graf z pliku
@@ -113,7 +128,9 @@ func (m *Menu) DisplayGraph() {
 	}
 }
 
-// Konfiguracja solverów bez dodatkowych parametrów - tylko start vertex
+// --------------------------------------------------
+// Konfiguracja solverów bez dodatkowych parametrów
+// --------------------------------------------------
 func (m *Menu) ConfigureBfSolver() {
 	m.bfATSPSolver = bf.NewBruteForceATSPSolver(m.startVertex)
 	m.bfATSPSolver.SetGraph(m.graph)
@@ -138,7 +155,9 @@ func (m *Menu) ConfigureGrSolver() {
 	fmt.Println("GR skonfigurowane.")
 }
 
+// --------------------------------------------------
 // Konfiguracja solverów z parametrami
+// --------------------------------------------------
 func (m *Menu) ConfigureSaSolver(initialTemperature float64, minimalTemperature float64, alpha float64, iterations int, timeout int64) {
 	solver := sa.NewSimulatedAnnealingATSPSolver(initialTemperature, minimalTemperature, alpha, iterations, timeout)
 	solver.SetGraph(m.graph)
@@ -160,6 +179,109 @@ func (m *Menu) ConfigureTsSolver(iterations int, timeout int64, tabuTenure int, 
 	}
 	m.tsATSPSolver = solver
 	fmt.Println("TS skonfigurowane.")
+}
+
+// --- ACOAS: nowy solver ---
+// Dodajemy funkcję konfigurującą parametry ACOASSolver
+func (m *Menu) ConfigureAcoAsSolver() {
+	if m.graph == nil {
+		fmt.Println("Najpierw wczytaj lub wygeneruj graf.")
+		return
+	}
+	reader := bufio.NewReader(os.Stdin)
+
+	// Odczyt parametrów
+	fmt.Println("Konfiguracja ACOAS Solver:")
+
+	antsCount, err := readInt("Liczba mrówek (antsCount): ")
+	if err != nil {
+		fmt.Println("Błąd odczytu antsCount:", err)
+		return
+	}
+	iterations, err := readInt("Liczba iteracji (iterations): ")
+	if err != nil {
+		fmt.Println("Błąd odczytu iterations:", err)
+		return
+	}
+	maxIterationsWithoutImprovement, err := readInt("Maksymalna liczba iteracji bez poprawy: ")
+	if err != nil {
+		fmt.Println("Błąd odczytu maxIterationsWithoutImprovement:", err)
+		return
+	}
+	alpha, err := readFloat("Alpha (feromony) [default: 1.0]: ")
+	if err != nil {
+		fmt.Println("Błąd odczytu alpha:", err)
+		return
+	}
+	beta, err := readFloat("Beta (heurystyka) [default: 2.0]: ")
+	if err != nil {
+		fmt.Println("Błąd odczytu beta:", err)
+		return
+	}
+	evap, err := readFloat("Evaporation rate (od 0 do 1) [default: 0.1-0.5]: ")
+	if err != nil {
+		fmt.Println("Błąd odczytu evaporationRate:", err)
+		return
+	}
+	pherPa, err := readFloat("Ilość feromonów na mrówkę (pheromonesPerAnt) [default: 5.0]: ")
+	if err != nil {
+		fmt.Println("Błąd odczytu pheromonesPerAnt:", err)
+		return
+	}
+	startPher, err := readFloat("Początkowa ilość feromonów (startPheromones) [default: 1.0]: ")
+	if err != nil {
+		fmt.Println("Błąd odczytu startPheromones:", err)
+		return
+	}
+	fmt.Print("Podaj timeout w sekundach (-1 brak limitu): ")
+	timeoutLine, _ := reader.ReadString('\n')
+	timeoutLine = strings.TrimSpace(timeoutLine)
+	timeoutValue, err := strconv.ParseInt(timeoutLine, 10, 64)
+	if err != nil {
+		fmt.Println("Błąd odczytu timeout:", err)
+		return
+	}
+	if timeoutValue != -1 {
+		timeoutValue = utils.SecondsToNanoSeconds(timeoutValue)
+	}
+
+	// Tworzymy nowy solver ACOAS:
+	solver := aco.NewACOZeroEdgeSolver(
+		antsCount,
+		iterations,
+		maxIterationsWithoutImprovement,
+		alpha,
+		beta,
+		evap,
+		pherPa,
+		startPher,
+		timeoutValue,
+	)
+	solver.SetGraph(m.graph)
+
+	// Przypisujemy do naszego menu
+	m.acoAsSolver = *solver
+
+	fmt.Println("ACOAS skonfigurowane.")
+}
+
+// --- ACOAS: nowy solver ---
+// Uruchamia solver ACOAS
+func (m *Menu) RunAcoAs() {
+	if m.acoAsSolver.GetGraph() == nil {
+		fmt.Println("Solver ACOAS nie ma przypisanego grafu.")
+		return
+	}
+	start := time.Now()
+	path, cost := m.acoAsSolver.Solve()
+	elapsed := time.Since(start)
+
+	if path == nil || cost == math.MaxInt {
+		fmt.Println("Mrówki nie znalazły pełnej trasy. (lub cost == MaxInt)")
+	} else {
+		m.printSolution(path, cost)
+	}
+	fmt.Println("Czas wykonania ACOAS:", elapsed)
 }
 
 // printSolution wypisuje ścieżkę i koszt
@@ -276,6 +398,9 @@ func (m *Menu) solverConfigurationSubmenu() {
 		fmt.Println("4. GR")
 		fmt.Println("5. SA")
 		fmt.Println("6. TS")
+		// --- ACOAS: nowy solver ---
+		fmt.Println("7. ACOAS")
+
 		fmt.Println("b. Powrót")
 		fmt.Print("Wybierz solver do konfiguracji: ")
 
@@ -297,6 +422,7 @@ func (m *Menu) solverConfigurationSubmenu() {
 				}
 			}
 			m.ConfigureBfSolver()
+
 		case "2":
 			// BnB - tylko ustawienie start vertex
 			fmt.Print("Podaj wierzchołek startowy (lub enter aby nie zmieniać): ")
@@ -311,6 +437,7 @@ func (m *Menu) solverConfigurationSubmenu() {
 				}
 			}
 			m.ConfigureBnbSolver()
+
 		case "3":
 			// DP - tylko ustawienie start vertex
 			fmt.Print("Podaj wierzchołek startowy (lub enter aby nie zmieniać): ")
@@ -325,6 +452,7 @@ func (m *Menu) solverConfigurationSubmenu() {
 				}
 			}
 			m.ConfigureDpSolver()
+
 		case "4":
 			// GR - tylko ustawienie start vertex
 			fmt.Print("Podaj wierzchołek startowy (lub enter aby nie zmieniać): ")
@@ -339,6 +467,7 @@ func (m *Menu) solverConfigurationSubmenu() {
 				}
 			}
 			m.ConfigureGrSolver()
+
 		case "5":
 			// SA - konfiguracja parametrów
 			fmt.Println("Konfiguracja SA:")
@@ -376,6 +505,7 @@ func (m *Menu) solverConfigurationSubmenu() {
 			}
 
 			m.ConfigureSaSolver(initialTemp, minTemp, alpha, iterations, timeout)
+
 		case "6":
 			// TS - konfiguracja parametrów
 			fmt.Println("Konfiguracja Tabu Search:")
@@ -421,6 +551,11 @@ func (m *Menu) solverConfigurationSubmenu() {
 			}
 
 			m.ConfigureTsSolver(iterations, timeout, tabuTenure, neighborhoodMethod)
+
+		case "7":
+			// --- ACOAS: nowy solver ---
+			m.ConfigureAcoAsSolver()
+
 		case "b", "B":
 			// Powrót do głównego menu
 			return
@@ -534,6 +669,8 @@ func (m *Menu) RunInteractiveMenu() {
 			fmt.Println("4. Greedy")
 			fmt.Println("5. Simulated Annealing")
 			fmt.Println("6. Tabu Search")
+			// --- ACOAS: nowy solver ---
+			fmt.Println("7. ACOAS")
 			fmt.Print("Wybierz solver: ")
 
 			solverOpt, _ := reader.ReadString('\n')
@@ -552,6 +689,8 @@ func (m *Menu) RunInteractiveMenu() {
 				m.RunSa()
 			case "6":
 				m.RunTs()
+			case "7":
+				m.RunAcoAs()
 			default:
 				fmt.Println("Nieznana opcja.")
 			}
