@@ -4,7 +4,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"projekt2/graph"
+	"projekt3/graph"
 	"time"
 )
 

@@ -4,7 +4,7 @@ import (
 	"container/heap"
 	"log"
 	"math"
-	"projekt2/graph"
+	"projekt3/graph"
 )
 
 type BNBATSPSolver struct {

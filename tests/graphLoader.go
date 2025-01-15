@@ -2,7 +2,7 @@ package tests
 
 import (
 	"log"
-	"projekt2/graph"
+	"projekt3/graph"
 )
 
 func LoadTestGraphs() (graph.Graph, graph.Graph, graph.Graph, graph.Graph) {

@@ -1,7 +1,7 @@
 package tuningTests
 
 import (
-	"projekt2/tests/tuningTests/acoTuning"
+	"projekt3/tests/tuningTests/acoTuning"
 )
 
 func RunTuning() {

@@ -1,6 +1,6 @@
 package solver
 
-import "projekt2/graph"
+import "projekt3/graph"
 
 type ATSPSolver interface {
 	SetGraph(graph graph.Graph)

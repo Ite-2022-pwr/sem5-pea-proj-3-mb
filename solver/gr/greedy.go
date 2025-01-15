@@ -1,7 +1,7 @@
 package gr
 
 import (
-	"projekt2/graph"
+	"projekt3/graph"
 )
 
 type GRATSPSolver struct {

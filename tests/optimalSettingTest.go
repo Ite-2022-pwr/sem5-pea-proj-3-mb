@@ -3,9 +3,9 @@ package tests
 import (
 	"log"
 	"math"
-	"projekt2/graph"
-	"projekt2/solver/aco"
-	"projekt2/utils"
+	"projekt3/graph"
+	"projekt3/solver/aco"
+	"projekt3/utils"
 	"time"
 )
 

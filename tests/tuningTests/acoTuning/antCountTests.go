@@ -3,10 +3,10 @@ package acoTuning
 import (
 	"log"
 	"math"
-	"projekt2/graph"
-	"projekt2/solver/aco"
-	"projekt2/tests"
-	"projekt2/utils"
+	"projekt3/graph"
+	"projekt3/solver/aco"
+	"projekt3/tests"
+	"projekt3/utils"
 	"strconv"
 	"time"
 )
@@ -18,10 +18,10 @@ func RunAntCountTests() {
 	antCountsM := []int{10, 50, 100, 171}
 	antCountsL := []int{10, 50, 100, 358}
 	timeoutInNs := utils.MinutesToNanoSeconds(1)
-	runSingleGraphIterTuning(tinyG, antCountsT, timeoutInNs, "aco_ant_count_tiny_")
-	runSingleGraphIterTuning(smallG, antCountsS, timeoutInNs, "aco_ant_count_small_")
-	runSingleGraphIterTuning(mediumG, antCountsM, timeoutInNs, "aco_ant_count_medium_")
-	runSingleGraphIterTuning(largeG, antCountsL, timeoutInNs, "aco_ant_count_large_")
+	runSingleGraphAntCountTuning(tinyG, antCountsT, timeoutInNs, "aco_ant_count_tiny_")
+	runSingleGraphAntCountTuning(smallG, antCountsS, timeoutInNs, "aco_ant_count_small_")
+	runSingleGraphAntCountTuning(mediumG, antCountsM, timeoutInNs, "aco_ant_count_medium_")
+	runSingleGraphAntCountTuning(largeG, antCountsL, timeoutInNs, "aco_ant_count_large_")
 }
 
 func runSingleGraphAntCountTuning(g graph.Graph, antCounts []int, timeoutInNs int64, fileOutName string) {

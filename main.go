@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"projekt2/menu"
-	"projekt2/tests"
-	"projekt2/tests/amountTests"
-	"projekt2/tests/comparisonTests"
-	"projekt2/tests/tuningTests"
+	"projekt3/menu"
+	"projekt3/tests"
+	"projekt3/tests/amountTests"
+	"projekt3/tests/comparisonTests"
+	"projekt3/tests/tuningTests"
 )
 
 func main() {

@@ -1,14 +1,14 @@
 package comparisonTests
 
 import (
-	"projekt2/graph"
-	"projekt2/solver/aco"
-	"projekt2/solver/bf"
-	"projekt2/solver/bnb"
-	"projekt2/solver/dp"
-	"projekt2/solver/sa"
-	"projekt2/solver/ts"
-	"projekt2/utils"
+	"projekt3/graph"
+	"projekt3/solver/aco"
+	"projekt3/solver/bf"
+	"projekt3/solver/bnb"
+	"projekt3/solver/dp"
+	"projekt3/solver/sa"
+	"projekt3/solver/ts"
+	"projekt3/utils"
 	"time"
 )
 

@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"projekt2/utils"
+	"projekt3/utils"
 	"strconv"
 	"strings"
 	"time"
 
-	"projekt2/graph"
-	"projekt2/solver/aco" // <<--- import naszego solvera
-	"projekt2/solver/bf"
-	"projekt2/solver/bnb"
-	"projekt2/solver/dp"
-	"projekt2/solver/gr"
-	"projekt2/solver/sa"
-	"projekt2/solver/ts"
+	"projekt3/graph"
+	"projekt3/solver/aco" // <<--- import naszego solvera
+	"projekt3/solver/bf"
+	"projekt3/solver/bnb"
+	"projekt3/solver/dp"
+	"projekt3/solver/gr"
+	"projekt3/solver/sa"
+	"projekt3/solver/ts"
 )
 
 // Menu struktura obsługująca dostępne funkcjonalności

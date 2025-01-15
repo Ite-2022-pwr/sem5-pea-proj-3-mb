@@ -3,7 +3,7 @@ package dp
 import (
 	"log"
 	"math"
-	"projekt2/graph"
+	"projekt3/graph"
 )
 
 type DPATSPSolver struct {

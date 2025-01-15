@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"projekt2/graph"
+	"projekt3/graph"
 	"time"
 )
 
