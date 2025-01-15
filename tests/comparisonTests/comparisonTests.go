@@ -24,17 +24,17 @@ func RunComparisonTests() {
 
 func runTinyComparisonTests(g graph.Graph, filename string) {
 	timeoutInNs := utils.MinutesToNanoSeconds(1)
-	results := make([][]int64, 5) // aco, sa, ts, dp, bnb
-	for i := 0; i < 5; i++ {
+	results := make([][]int64, 8) // aco, sa, ts, dp, bnb
+	for i := 0; i < 8; i++ {
 		results[i] = make([]int64, 10)
 	}
 
 	for i := 0; i < 10; i++ {
-		results[0][i], _ = runACO(g, timeoutInNs)
-		results[1][i], _ = runSA(g, timeoutInNs)
-		results[2][i], _ = runTS(g, timeoutInNs)
-		results[3][i], _ = runDp(g)
-		results[4][i], _ = runBnB(g)
+		results[0][i], results[1][i] = runACO(g, timeoutInNs)
+		results[2][i], results[3][i] = runSA(g, timeoutInNs)
+		results[4][i], results[5][i] = runTS(g, timeoutInNs)
+		results[6][i], _ = runDp(g)
+		results[7][i], _ = runBnB(g)
 	}
 	utils.SaveTimesToCSVFile(results, filename+utils.GetDateForFilename()+".csv")
 }
